@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    
+    
+    <title>Configuration ~ Modi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Modi: configuration">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link href="/assets/css/main.css" rel="stylesheet">
+    <script src="/assets/js/modi.min.js"></script>
+    <script src="/assets/js/main.js"></script>
+  </head>
+  <body>
+    <nav class="main-nav" id="main-nav">
+      <div class="panel">
+        <div class="header">
+          MODI
+          <button class="close" id="mainNavToggle">×</button>
+        </div>
+        
+        
+<ul class="menu">
+  <li><a href="/" title="Quick start">Quick start</a></li>
+  <li><a href="/configuration" title="Configuration" class="active">Configuration</a></li>
+  <li><a href="/reference" title="Reference">Reference</a></li>
+  <li class="section">Templates</li>
+  <li><a href="/templates/default" title="Default template">Default</a></li>
+  <li><a href="/templates/actions" title="Actions template">Actions</a></li>
+  <li><a href="/templates/notification" title="Notification template">Notification</a></li>
+</ul>
+
+      </div>
+    </nav>
+    <header class="header">
+      <div class="grid">
+  			<h1 class="col-1-1 title">
+          <button class="nav-toggle" id="headerMenuToggle">&equiv;</button>
+  				<a href="/">MODI</a>
+  			</h1>
+      </div>
+		</header>
+    <main class="grid">
+			<article class="col-1-1 page ">
+        <header>
+          <h2 class="title">
+            <span>Configuration</span>
+          </h2>
+        </header>
+        <p>Config structure:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">cnf</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">container</span><span class="p">:</span> <span class="p">{</span><span class="nx">Element</span><span class="p">},</span>
+  <span class="na">content</span><span class="p">:</span> <span class="p">{</span><span class="nb">String</span><span class="p">},</span>
+  <span class="na">template</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">html</span><span class="p">:</span> <span class="p">{</span><span class="nb">String</span><span class="p">},</span>
+    <span class="na">data</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">class</span><span class="p">:</span> <span class="p">{</span><span class="nb">String</span><span class="p">},</span>
+      <span class="na">outsideClose</span><span class="p">:</span> <span class="p">{</span><span class="nb">Boolean</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">events</span><span class="p">:</span> <span class="p">{</span><span class="nb">Array</span><span class="p">},</span>
+    <span class="na">listeners</span><span class="p">:</span> <span class="p">{</span><span class="nb">Object</span><span class="p">},</span>
+    <span class="na">methods</span><span class="p">:</span> <span class="p">{</span><span class="nb">Object</span><span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="container">container</h3>
+
+<p>Element where the modal will be inserted. Default: <code>document.body</code>.</p>
+
+<h3 id="content">content</h3>
+
+<p>Modal’s content. Can be established after creation. Default: <code>""</code>.</p>
+
+<h3 id="template">template</h3>
+
+<p>Defines the structure and default behaviour. Some examples can be found under templates section: <a href="/templates/default" title="Default template">default</a>, <a href="/templates/actions" title="Actions template">actions</a>, <a href="/templates/notification" title="Notification template">notification</a>.</p>
+
+<div class="indent">
+
+  <h4 id="html">html</h4>
+
+  <p>Default content:</p>
+
+  <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"{class}"</span> <span class="na">data-element=</span><span class="s">"overlay"</span> <span class="na">data-visible=</span><span class="s">"false"</span> <span class="na">data-outside-close=</span><span class="s">"{outsideClose}"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">data-element=</span><span class="s">"modal"</span> <span class="na">data-small-width=</span><span class="s">"500"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;span</span> <span class="na">data-element=</span><span class="s">"close"</span><span class="nt">&gt;</span>×<span class="nt">&lt;/span&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">data-element=</span><span class="s">"content"</span><span class="nt">&gt;&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div>  </div>
+  <p>Modi is aware of the following elements:</p>
+
+  <ul class="list indent">
+    <li><strong>overlay</strong>: optional. When inserted manually in the same <code>container</code> and contains the <code>data-element</code> definition, Modi will be aware of the element, allowing you to have a shared overlay between modals.</li>
+    <li><strong>modal</strong>: required. Modal container.
+      <ul>
+        <li><code>small-width</code>: optional. Defines the break point where <code>small-width-flag</code> data attribute turns <code>true</code> or <code>false</code>.</li>
+      </ul>
+    </li>
+    <li><strong>close</strong>: optional. When present, an event handler will be attached to the element and will trigger the <a href="/reference#methods" title="Reference">hide method</a>.</li>
+    <li><strong>content</strong>: required if you plan to alter the content through Modi. Otherwise, it can be ignored.</li>
+  </ul>
+
+  <p>The following boolean flags will be present as data attributes:</p>
+
+  <ul class="list indent">
+    <li><code>modal-visible</code>: modal visible? Present on <code>container</code> element.</li>
+    <li><code>visible</code>: modal visible? Present on <code>overlay</code> and <code>modal</code> elemens.</li>
+    <li><code>small-height-flag</code>: window’s height smaller than the modal’s height? Present on <code>overlay</code> and <code>modal</code> elemens.</li>
+    <li><code>small-width-flag</code>: window’s width smaller than the <code>small-width</code> attribute present on <code>modal</code> element? Present on <code>overlay</code> and <code>modal</code> elements.</li>
+  </ul>
+
+  <h4 id="data">data</h4>
+
+  <p>Template replacements. Any placeholder present inside template as <code>{placeholder}</code> will be replaced with the corresponding data property. Allows the customization of a modal during instantiation. Defaults:</p>
+
+  <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">data</span><span class="p">:</span> <span class="p">{</span>
+  <span class="nl">class</span><span class="p">:</span> <span class="s1">'modi'</span><span class="p">,</span>
+  <span class="nx">outsideClose</span><span class="p">:</span> <span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>  </div>
+
+  <h4 id="events">events</h4>
+
+  <p>Custom events. Definition:</p>
+
+  <ul class="list indent">
+    <li><strong>name</strong>: required. Name of the event.</li>
+    <li><strong>type</strong>: required. Type of the event.</li>
+    <li><strong>selector</strong>: required. Selector that points to the dispatcher element. The element must be inside the <code>container</code>.</li>
+    <li><strong>dispatcher</strong>: optional. It’s possible to set the <code>overlay</code> or <code>modal</code> element as the dispatcher.</li>
+  </ul>
+
+  <p>For example, <a href="/templates/actions/" title="Actions template">actions template</a> have an “accept” button that dispatches a <code>modal:accept</code> event on click.</p>
+
+  <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="nl">events</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="na">name</span><span class="p">:</span> <span class="s1">'modal:accept'</span><span class="p">,</span>
+      <span class="na">type</span><span class="p">:</span> <span class="s1">'click'</span><span class="p">,</span>
+      <span class="na">selector</span><span class="p">:</span> <span class="s1">'[data-element="actions"] [data-action="accept"]'</span><span class="p">,</span>
+      <span class="na">dispatcher</span><span class="p">:</span> <span class="s1">'modal'</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>  </div>
+
+  <h4 id="listeners">listeners</h4>
+
+  <p>Any of the events can be captured by the template. This includes the <a href="/reference#events" title="Events">default events</a> and the custom ones.</p>
+
+  <p>For example:</p>
+
+  <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">listeners</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s1">'modal:hide'</span><span class="p">:</span> <span class="p">(</span><span class="nx">detail</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'modal:hide dispatched!'</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="s1">'modal:accept'</span><span class="p">:</span> <span class="p">(</span><span class="nx">detail</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'modal:accept dispatched!'</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>  </div>
+
+  <p>The <a href="/templates/notification" title="Notification template">notification template</a> contains an example.</p>
+
+  <h4 id="methods">methods</h4>
+
+  <p>The <code>show</code> and <code>hide</code> methods can be overriden inside template. Template’s methods run first, and it’s possible to call the default method from the custom one.</p>
+
+  <p>For example:</p>
+
+  <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">methods</span><span class="p">:</span> <span class="p">{</span>
+  <span class="nl">show</span><span class="p">:</span> <span class="p">(</span><span class="nx">contents</span><span class="p">,</span> <span class="nx">instance</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// Pritty stuff</span>
+    <span class="c1">// ...</span>
+    <span class="c1">// Call default method</span>
+    <span class="nx">instance</span><span class="p">.</span><span class="nx">show</span><span class="p">(</span><span class="nx">contents</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>  </div>
+
+  <p>The <a href="/templates/notification" title="Notification template">notification template</a> contains an example.</p>
+</div>
+
+        <footer markdown="0">
+          
+            <a href="/" title="Download & installation" class="button gray-light">&lsaquo;&lsaquo; Download & installation</a>
+          
+          
+            <a href="/reference/" title="Reference" class="button gray-light pullr">Reference &rsaquo;&rsaquo;</a>
+          
+        </footer>
+			</article>
+		</main>
+    <footer class="footer">
+      <div class="grid">
+        <div class="col-1-1 mobile-col-1-1">
+          
+          <p><a href="https://github.com/circunspecter/modi" title="GitHub project">GitHub project</a></p>
+
+<p>This web uses <a href="https://github.com/jgthms/minireset.css" title="minireset.css">minireset.css</a>, <a href="https://github.com/ThisIsDallas/Simple-Grid" title="Simple Grid">Simple Grid</a> and <a href="https://github.com/kbrsh/wing" title="Wing">Wing</a>. Powered by <a href="http://jekyllrb.com" title="Jekyll">Jekyll</a>. Hosted on <a href="http://pages.github.com" title="GitHub Pages">GitHub Pages</a>.</p>
+
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

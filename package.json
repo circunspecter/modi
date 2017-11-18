@@ -1,0 +1,35 @@
+{
+  "name": "modi",
+  "version": "1.0.0",
+  "description": "Modi: flexible and configurable modals. They don't make you the food.",
+  "keywords": ["modal"],
+  "license": "MIT",
+  "author": "Circunspecter",
+  "main": "dist/modi.js",
+  "scripts": {
+    "server": "http-server -a localhost -p 8000",
+    "wp": "webpack --progress",
+    "wp:watch": "npm run wp -- --watch",
+    "build": "concurrently \"npm run wp\" \"gulp sass\" \"gulp cp:templates\"",
+    "build:watch": "concurrently --kill-others \"npm run wp:watch\" \"gulp sass:watch\" \"gulp cp:templates:watch\" \"gulp cp:docs:styles:watch\" \"gulp cp:docs:configs:watch\"",
+    "build:prod:lin": "NODE_ENV=production npm run build",
+    "build:prod:win": "SET NODE_ENV=production& npm run build",
+    "dev": "concurrently --kill-others \"npm run server\" \"npm run build:watch\""
+  },
+  "devDependencies": {
+    "webpack": "3.1.*",
+    "eslint": "4.7.*",
+    "eslint-plugin-import": "2.7.*",
+    "http-server": "0.10.*",
+    "babel-core": "6.26.*",
+    "babel-loader": "7.1.*",
+    "babel-preset-es2015": "6.24.*",
+    "babel-plugin-add-module-exports": "0.2.*",
+    "gulp": "3.9.*",
+    "gulp-sass": "3.1.*",
+    "gulp-rename": "1.2.*",
+    "gulp-clean-css": "3.8.*",
+    "gulp-watch": "4.3.*",
+    "concurrently": "3.5.*"
+  }
+}

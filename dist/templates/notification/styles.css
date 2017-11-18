@@ -1,0 +1,48 @@
+.modi-notification {
+  background-color: #fff;
+  box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+  color: #666;
+  display: none;
+  font-size: .9em;
+  margin: 20px;
+  padding: 15px 30px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 300px;
+  z-index: 999; }
+  .modi-notification [data-element='close'] {
+    color: #ccc;
+    cursor: pointer;
+    height: 15px;
+    line-height: 15px;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 5px;
+    width: 15px; }
+    .modi-notification [data-element='close']:hover, .modi-notification [data-element='close']:active, .modi-notification [data-element='close']:focus {
+      color: #666; }
+  .modi-notification[data-small-width-flag='true'] {
+    left: 0;
+    margin: 10px auto;
+    right: 0;
+    width: 97%; }
+  .modi-notification[data-visible='true'] {
+    animation-direction: alternate;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
+    animation-name: test;
+    display: block; }
+  .modi-notification[data-effect='trans'] {
+    animation-direction: alternate;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
+    animation-name: test; }
+
+@keyframes test {
+  0%,
+  100% {
+    transform: scale(1); }
+  50% {
+    transform: scale(1.1); } }

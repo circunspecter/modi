@@ -1,0 +1,71 @@
+$white: #fff;
+$black: #333;
+$black-alpha: rgba($black, .3);
+$black-light: #666;
+$gray: #ccc;
+
+.modi-notification {
+  background-color: $white;
+  box-shadow: 0 0 3px $black-alpha;
+  color: $black-light;
+  display: none;
+  font-size: .9em;
+  margin: 20px;
+  padding: 15px 30px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 300px;
+  z-index: 999;
+
+  [data-element='close'] {
+    color: $gray;
+    cursor: pointer;
+    height: 15px;
+    line-height: 15px;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 5px;
+    width: 15px;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: $black-light;
+    }
+  }
+
+  &[data-small-width-flag='true'] {
+    left: 0;
+    margin: 10px auto;
+    right: 0;
+    width: 97%;
+  }
+
+  &[data-visible='true'] {
+    animation-direction: alternate;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
+    animation-name: test;
+    display: block;
+  }
+
+  &[data-effect='trans'] {
+    animation-direction: alternate;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
+    animation-name: test;
+  }
+}
+
+@keyframes test {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+}

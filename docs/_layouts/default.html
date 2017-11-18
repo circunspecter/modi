@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    {% assign title = site.title %}
+    {% if page.title and page.url != '/' %}
+      {% capture title %}{{ page.title }} ~ {{ title }}{% endcapture %}
+    {% endif %}
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ page.meta_description }}">
+    <link rel="shortcut icon" href="{{ site.baseurl }}/favicon.ico" type="image/x-icon" />
+    <link href="{{ site.baseurl }}/assets/css/main.css" rel="stylesheet">
+    <script src="{{ site.baseurl }}/assets/js/modi.min.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/main.js"></script>
+  </head>
+  <body>
+    <nav class="main-nav" id="main-nav">
+      <div class="panel">
+        <div class="header">
+          MODI
+          <button class="close" id="mainNavToggle">×</button>
+        </div>
+        {% capture menu %}{% include menu.md %}{% endcapture %}
+        {{ menu | markdownify }}
+      </div>
+    </nav>
+    <header class="header">
+      <div class="grid">
+  			<h1 class="col-1-1 title">
+          <button class="nav-toggle" id="headerMenuToggle">&equiv;</button>
+  				<a href="{{ site.baseurl }}/">MODI</a>
+  			</h1>
+      </div>
+		</header>
+    <main class="grid">
+			<article class="col-1-1 page {{ page.class }}">
+        <header>
+          <h2 class="title">
+            <span>{{ page.title }}</span>
+          </h2>
+        </header>
+        {{ content }}
+        <footer markdown="0">
+          {% if page.prev_page_title %}
+            <a href="{{ site.baseurl }}/{{ page.prev_page_path}}" title="{{ page.prev_page_title }}" class="button gray-light">&lsaquo;&lsaquo; {{ page.prev_page_title }}</a>
+          {% endif %}
+          {% if page.next_page_title %}
+            <a href="{{ site.baseurl }}/{{ page.next_page_path}}" title="{{ page.next_page_title }}" class="button gray-light pullr">{{ page.next_page_title }} &rsaquo;&rsaquo;</a>
+          {% endif %}
+        </footer>
+			</article>
+		</main>
+    <footer class="footer">
+      <div class="grid">
+        <div class="col-1-1 mobile-col-1-1">
+          {% capture footer %}{% include footer.md %}{% endcapture %}
+          {{ footer | markdownify }}
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

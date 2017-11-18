@@ -1,0 +1,10 @@
+title: Modi
+email: circunspecter@yahoo.es
+baseurl: '/modi'
+url: ''
+github_username:  circunspecter
+
+permalink: /:path/:basename/
+markdown: kramdown
+sass:
+  style: compressed
