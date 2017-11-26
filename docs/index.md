@@ -18,6 +18,20 @@ Flexible and configurable modals. They don't make you the food.
 <script src="/path/to/modi.min.js"></script>
 ```
 
+<div markdown="1" class="note">
+[unpkg CDN](https://unpkg.com "unpkg"):
+
+```html
+//unpkg.com/@circunspecter/modi@latest/dist/modi.min.js
+```
+</div>
+
+#### npm
+
+```shell
+npm install @circunspecter/modi
+```
+
 {: .note}
 It's also necessary to add the styles. You can take a look under <code>templates</code> folder. Templates examples: [default]({{ site.baseurl }}/templates/default "Default template"), [actions]({{ site.baseurl }}/templates/actions "Actions template"), [notification]({{ site.baseurl }}/templates/notification "Notification template").
 

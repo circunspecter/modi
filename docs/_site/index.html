@@ -7,10 +7,10 @@
     <title>Modi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Modi: flexible and configurable modals. They don't make you the food.">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link href="/assets/css/main.css" rel="stylesheet">
-    <script src="/assets/js/modi.min.js"></script>
-    <script src="/assets/js/main.js"></script>
+    <link rel="shortcut icon" href="/modi/favicon.ico" type="image/x-icon" />
+    <link href="/modi/assets/css/main.css" rel="stylesheet">
+    <script src="/modi/assets/js/modi.min.js"></script>
+    <script src="/modi/assets/js/main.js"></script>
   </head>
   <body>
     <nav class="main-nav" id="main-nav">
@@ -22,13 +22,13 @@
         
         
 <ul class="menu">
-  <li><a href="/" title="Quick start" class="active">Quick start</a></li>
-  <li><a href="/configuration" title="Configuration">Configuration</a></li>
-  <li><a href="/reference" title="Reference">Reference</a></li>
+  <li><a href="/modi/" title="Quick start" class="active">Quick start</a></li>
+  <li><a href="/modi/configuration" title="Configuration">Configuration</a></li>
+  <li><a href="/modi/reference" title="Reference">Reference</a></li>
   <li class="section">Templates</li>
-  <li><a href="/templates/default" title="Default template">Default</a></li>
-  <li><a href="/templates/actions" title="Actions template">Actions</a></li>
-  <li><a href="/templates/notification" title="Notification template">Notification</a></li>
+  <li><a href="/modi/templates/default" title="Default template">Default</a></li>
+  <li><a href="/modi/templates/actions" title="Actions template">Actions</a></li>
+  <li><a href="/modi/templates/notification" title="Notification template">Notification</a></li>
 </ul>
 
       </div>
@@ -37,7 +37,7 @@
       <div class="grid">
   			<h1 class="col-1-1 title">
           <button class="nav-toggle" id="headerMenuToggle">&equiv;</button>
-  				<a href="/">MODI</a>
+  				<a href="/modi/">MODI</a>
   			</h1>
       </div>
 		</header>
@@ -48,7 +48,7 @@
             <span>Quick start</span>
           </h2>
         </header>
-        <link href="/assets/css/templates/default/styles.min.css" rel="stylesheet" />
+        <link href="/modi/assets/css/templates/default/styles.min.css" rel="stylesheet" />
 
 <p>Flexible and configurable modals. They don’t make you the food.</p>
 
@@ -59,7 +59,19 @@
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/path/to/modi.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div></div>
 
-<p class="note">It’s also necessary to add the styles. You can take a look under <code>templates</code> folder. Templates examples: <a href="/templates/default" title="Default template">default</a>, <a href="/templates/actions" title="Actions template">actions</a>, <a href="/templates/notification" title="Notification template">notification</a>.</p>
+<div class="note">
+  <p><a href="https://unpkg.com" title="unpkg">unpkg CDN</a>:</p>
+
+  <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//unpkg.com/@circunspecter/modi@latest/dist/modi.min.js
+</code></pre></div>  </div>
+</div>
+
+<h4 id="npm">npm</h4>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install @circunspecter/modi
+</code></pre></div></div>
+
+<p class="note">It’s also necessary to add the styles. You can take a look under <code>templates</code> folder. Templates examples: <a href="/modi/templates/default" title="Default template">default</a>, <a href="/modi/templates/actions" title="Actions template">actions</a>, <a href="/modi/templates/notification" title="Notification template">notification</a>.</p>
 
 <h3 id="usage">Usage</h3>
 
@@ -74,7 +86,7 @@ var modal = new Modi({ content: 'Hi world!' });
         <footer markdown="0">
           
           
-            <a href="/configuration/" title="Configuration" class="button gray-light pullr">Configuration &rsaquo;&rsaquo;</a>
+            <a href="/modi/configuration/" title="Configuration" class="button gray-light pullr">Configuration &rsaquo;&rsaquo;</a>
           
         </footer>
 			</article>
