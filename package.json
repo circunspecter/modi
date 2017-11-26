@@ -1,11 +1,16 @@
 {
-  "name": "modi",
+  "name": "@circunspecter/modi",
   "version": "1.0.0",
   "description": "Modi: flexible and configurable modals. They don't make you the food.",
   "keywords": ["modal"],
   "license": "MIT",
-  "author": "Circunspecter",
+  "author": "circunspecter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/circunspecter/modi.git"
+  },
   "main": "dist/modi.js",
+  "unpkg": "dist/modi.min.js",
   "scripts": {
     "server": "http-server -a localhost -p 8000",
     "wp": "webpack --progress",
