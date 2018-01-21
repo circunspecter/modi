@@ -15,7 +15,7 @@
     "server": "http-server -a localhost -p 8000",
     "wp": "webpack --progress",
     "wp:watch": "npm run wp -- --watch",
-    "build": "concurrently \"npm run wp\" \"gulp sass\" \"gulp cp:templates\"",
+    "build": "concurrently \"npm run wp\" \"gulp sass\" \"gulp cp:templates\" \"gulp cp:docs:styles\" \"gulp cp:docs:configs\"",
     "build:watch": "concurrently --kill-others \"npm run wp:watch\" \"gulp sass:watch\" \"gulp cp:templates:watch\" \"gulp cp:docs:styles:watch\" \"gulp cp:docs:configs:watch\"",
     "build:prod:lin": "NODE_ENV=production npm run build",
     "build:prod:win": "SET NODE_ENV=production& npm run build",

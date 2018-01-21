@@ -121,11 +121,17 @@ div {
     word-wrap: normal;
     word-break: normal;
     white-space: pre;
+    font-size: .9em;
   }
 }
 
-.no-scroll {
+.no-scroll,
+body[data-modal-visible='true'] {
   overflow: hidden;
+
+  code {
+    overflow: hidden;
+  }
 }
 
 .grid {
