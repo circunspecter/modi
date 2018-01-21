@@ -35,9 +35,6 @@ function closest(element, selector) {
   }
 }
 
-// "Minitabs" leaves the nest.
-// es2015 version of the jquery minitabs plugin.
-// Siente libre de mejorar el código. Modifica el gist y se refrejará aquí.
 function minitabs() {
   // Loop minitabs
   document.body.querySelectorAll('.minitabs').forEach((container) => {

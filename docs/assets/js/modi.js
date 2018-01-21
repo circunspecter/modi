@@ -108,7 +108,7 @@ var close = 'close';
 var content = 'content';
 
 var _class = function () {
-  function _class(config) {
+  function _class(config, initialize) {
     _classCallCheck(this, _class);
 
     config = config || {};
@@ -128,11 +128,14 @@ var _class = function () {
     _Dom2.default.container = this.config.container;
 
     // Storage of modal elements
+    this.elements = [];
     this.references = {};
     // Storage of modal listeners
     this.listeners = [];
 
-    this.create(this.config.content);
+    if (initialize !== false) {
+      this.create(this.config.content);
+    }
   }
 
   /**
@@ -151,23 +154,7 @@ var _class = function () {
      * @param {boolean} runDefault "true" runs default method, "false" the template's one.
      */
     value: function show(contents, runDefault) {
-      var _this = this;
-
-      // By default, try to run template's method
-      runDefault = runDefault || false;
-      if (!runDefault && this.template.methods.show) {
-        this.template.methods.show(contents, this);
-      } else if (!this.isVisible()) {
-        if (contents) {
-          this.content = contents;
-        }
-        [overlay, modal].forEach(function (element) {
-          _Dom2.default.data.set(_this.element(element), 'visible', true);
-        });
-        _Dom2.default.data.set(_Dom2.default.container, 'modalVisible', true);
-        this.setFlags();
-        this.dispatchEvent(this.element(modal), 'modal:show');
-      }
+      this.setVisible(true, runDefault, contents);
     }
 
     /**
@@ -178,18 +165,35 @@ var _class = function () {
   }, {
     key: 'hide',
     value: function hide(runDefault) {
-      var _this2 = this;
+      this.setVisible(false, runDefault);
+    }
 
-      // By default, try to run template's method
-      runDefault = runDefault || false;
-      if (!runDefault && this.template.methods.hide) {
-        this.template.methods.hide(this);
-      } else if (this.isVisible()) {
-        [overlay, modal].forEach(function (element) {
-          _Dom2.default.data.set(_this2.element(element), 'visible', false);
-        });
-        _Dom2.default.data.set(_Dom2.default.container, 'modalVisible', false);
-        this.dispatchEvent(this.element(modal), 'modal:hide');
+    /**
+     * Show modal.
+     * @param {boolean} visible Visible state.
+     * @param {boolean} runDefault "true" runs default method, "false" the template's one.
+     * @param {string} contents Modal content.
+     */
+
+  }, {
+    key: 'setVisible',
+    value: function setVisible(visible, runDefault, contents) {
+      if (this.elements.length) {
+        var action = visible === true ? 'show' : 'hide';
+        // By default, try to run template's method
+        if (runDefault !== true && this.template.methods[action]) {
+          if (action === 'show') {
+            this.template.methods.show(contents, this);
+          } else {
+            this.template.methods.hide(this);
+          }
+        } else if (visible !== this.isVisible()) {
+          if (action === 'show' && contents) {
+            this.content = contents;
+          }
+          this.setFlags(visible);
+          this.dispatchEvent(this.element(modal), 'modal:' + action);
+        }
       }
     }
 
@@ -200,8 +204,10 @@ var _class = function () {
   }, {
     key: 'relocate',
     value: function relocate() {
-      this.setFlags();
-      this.dispatchEvent(this.element(modal), 'modal:relocate');
+      if (this.isVisible()) {
+        this.setFlags();
+        this.dispatchEvent(this.element(modal), 'modal:relocate');
+      }
     }
 
     /**
@@ -212,60 +218,62 @@ var _class = function () {
   }, {
     key: 'create',
     value: function create(contents) {
-      var _this3 = this;
+      var _this = this;
 
-      // Append modal and store its elements.
-      this.elements = _Dom2.default.appendHtml(this.template.render());
+      if (!this.elements.length) {
+        // Append modal and store its elements.
+        this.elements = _Dom2.default.appendHtml(this.template.render());
 
-      // Store instance reference inside parent template elements
-      this.elements.forEach(function (element) {
-        Object.defineProperty(element, '_Modi', { value: _this3 });
-      });
-
-      // Set content
-      this.content = contents || '';
-
-      // Close element handler
-      if (this.element(close)) {
-        this.addListener(this.element(close), 'click', function () {
-          _this3.hide();
+        // Store instance reference inside parent template elements
+        this.elements.forEach(function (element) {
+          Object.defineProperty(element, '_Modi', { value: _this });
         });
-      }
 
-      // Overlay close handler
-      if (_Dom2.default.data.get(this.element(overlay), 'outsideClose') === 'true') {
-        this.addListener(this.element(overlay), 'click', function (e) {
-          if (e.target.dataset.element === 'overlay') {
-            _this3.hide();
-          }
+        // Set content
+        this.content = contents || '';
+
+        // Close element handler
+        if (this.element(close)) {
+          this.addListener(this.element(close), 'click', function () {
+            _this.hide();
+          });
+        }
+
+        // Overlay close handler
+        if (_Dom2.default.data.get(this.element(overlay), 'outsideClose') === 'true') {
+          this.addListener(this.element(overlay), 'click', function (e) {
+            if (e.target.dataset.element === 'overlay') {
+              _this.hide();
+            }
+          });
+        }
+
+        // Window resize handler for modal relocation
+        this.resizeTimer = null;
+        this.addListener(window, 'resize', function () {
+          clearTimeout(_this.resizeTimer);
+          _this.resizeTimer = setTimeout(function () {
+            _this.relocate();
+          }, 300);
         });
-      }
 
-      // Window resize handler for modal relocation
-      this.resizeTimer = null;
-      this.addListener(window, 'resize', function () {
-        clearTimeout(_this3.resizeTimer);
-        _this3.resizeTimer = setTimeout(function () {
-          _this3.relocate();
-        }, 300);
-      });
+        // Template events
+        if (this.template.hasEvents()) {
+          // Add listeners to dispatch custom events
+          this.template.events.forEach(function (ev) {
+            var element = _Dom2.default.getByAttr(ev.selector, _this.element(modal))[0];
 
-      // Template events
-      if (this.template.hasEvents()) {
-        // Add listeners to dispatch custom events
-        this.template.events.forEach(function (ev) {
-          var element = _Dom2.default.getByAttr(ev.selector, _this3.element(modal))[0];
-
-          if (element) {
-            _this3.addListener(element, ev.type, function () {
-              // Check for custom element dispatcher
-              if (['overlay', 'modal'].indexOf(ev.dispatcher) !== -1) {
-                element = _this3.element(ev.dispatcher);
-              }
-              _this3.dispatchEvent(element, ev.name);
-            });
-          }
-        });
+            if (element) {
+              _this.addListener(element, ev.type, function () {
+                // Check for custom element dispatcher
+                if (['overlay', 'modal'].indexOf(ev.dispatcher) !== -1) {
+                  element = _this.element(ev.dispatcher);
+                }
+                _this.dispatchEvent(element, ev.name);
+              });
+            }
+          });
+        }
       }
     }
 
@@ -276,17 +284,24 @@ var _class = function () {
   }, {
     key: 'remove',
     value: function remove() {
-      var _this4 = this;
-
-      // Remove listeners
+      this.hide();
+      // Remove listeners.
       this.listeners.forEach(function (listener) {
         listener.element.removeEventListener(listener.type, listener.listener);
       });
-      // Remove elements from DOM
+      // Remove elements from DOM.
       this.elements.forEach(function (element) {
-        _this4.container.removeChild(element);
+        _Dom2.default.container.removeChild(element);
       });
+      // Clean modal elements references
+      this.elements = [];
+      this.references = {};
     }
+
+    /**
+     * Check if the modal is visible.
+     */
+
   }, {
     key: 'isVisible',
     value: function isVisible() {
@@ -302,7 +317,7 @@ var _class = function () {
   }, {
     key: 'element',
     value: function element(name) {
-      var _this5 = this;
+      var _this2 = this;
 
       if (!this.references[name]) {
         this.references[name] =
@@ -312,7 +327,7 @@ var _class = function () {
         })[0] ||
         // Search it inside each "parent" element.
         this.elements.map(function (el) {
-          return _this5.getSubElement(name, el);
+          return _this2.getSubElement(name, el);
         })[0] ||
         // Search it inside the body.
         this.getSubElement(name, _Dom2.default.container);
@@ -332,13 +347,25 @@ var _class = function () {
     value: function getSubElement(name, parent) {
       return _Dom2.default.getByAttr('[data-element="' + name + '"]', parent)[0];
     }
+
+    /**
+     * Set modal flags.
+     */
+
   }, {
     key: 'setFlags',
     value: function setFlags() {
-      var _this6 = this;
+      var _this3 = this;
+
+      var visible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.isVisible();
 
       var smallHeight = false;
       var smallWidth = false;
+
+      [overlay, modal].forEach(function (element) {
+        _Dom2.default.data.set(_this3.element(element), 'visible', visible);
+      });
+      _Dom2.default.data.set(_Dom2.default.container, 'modalVisible', visible);
 
       if (this.element(modal)) {
         smallHeight = window.innerHeight < this.element(modal).offsetHeight;
@@ -347,8 +374,8 @@ var _class = function () {
       }
 
       [overlay, modal].forEach(function (element) {
-        _Dom2.default.data.set(_this6.element(element), 'smallHeightFlag', smallHeight);
-        _Dom2.default.data.set(_this6.element(element), 'smallWidthFlag', smallWidth);
+        _Dom2.default.data.set(_this3.element(element), 'smallHeightFlag', smallHeight);
+        _Dom2.default.data.set(_this3.element(element), 'smallWidthFlag', smallWidth);
       });
     }
 
@@ -393,6 +420,7 @@ var _class = function () {
         if (this.template.listeners[name]) {
           this.template.listeners[name](detail);
         }
+
         // Dispatch custom event
         _Dom2.default.event.dispatch(element, name, detail);
       }

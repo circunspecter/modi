@@ -8,7 +8,7 @@ const close = 'close';
 const content = 'content';
 
 export default class {
-  constructor(config) {
+  constructor(config, initialize) {
     config = config || {};
 
     // Modal config
@@ -26,11 +26,14 @@ export default class {
     Dom.container = this.config.container;
 
     // Storage of modal elements
+    this.elements = [];
     this.references = {};
     // Storage of modal listeners
     this.listeners = [];
 
-    this.create(this.config.content);
+    if (initialize !== false) {
+      this.create(this.config.content);
+    }
   }
 
   /**
@@ -59,21 +62,7 @@ export default class {
    * @param {boolean} runDefault "true" runs default method, "false" the template's one.
    */
   show(contents, runDefault) {
-    // By default, try to run template's method
-    runDefault = runDefault || false;
-    if (!runDefault && this.template.methods.show) {
-      this.template.methods.show(contents, this);
-    } else if (!this.isVisible()) {
-      if (contents) {
-        this.content = contents;
-      }
-      [overlay, modal].forEach((element) => {
-        Dom.data.set(this.element(element), 'visible', true);
-      });
-      Dom.data.set(Dom.container, 'modalVisible', true);
-      this.setFlags();
-      this.dispatchEvent(this.element(modal), 'modal:show');
-    }
+    this.setVisible(true, runDefault, contents);
   }
 
   /**
@@ -81,16 +70,32 @@ export default class {
    * @param {boolean} runDefault "true" runs default method, "false" the template's one.
    */
   hide(runDefault) {
-    // By default, try to run template's method
-    runDefault = runDefault || false;
-    if (!runDefault && this.template.methods.hide) {
-      this.template.methods.hide(this);
-    } else if (this.isVisible()) {
-      [overlay, modal].forEach((element) => {
-        Dom.data.set(this.element(element), 'visible', false);
-      });
-      Dom.data.set(Dom.container, 'modalVisible', false);
-      this.dispatchEvent(this.element(modal), 'modal:hide');
+    this.setVisible(false, runDefault);
+  }
+
+  /**
+   * Show modal.
+   * @param {boolean} visible Visible state.
+   * @param {boolean} runDefault "true" runs default method, "false" the template's one.
+   * @param {string} contents Modal content.
+   */
+  setVisible(visible, runDefault, contents) {
+    if (this.elements.length) {
+      let action = (visible === true) ? 'show' : 'hide';
+      // By default, try to run template's method
+      if (runDefault !== true && this.template.methods[action]) {
+        if (action === 'show') {
+          this.template.methods.show(contents, this);
+        } else {
+          this.template.methods.hide(this);
+        }
+      } else if (visible !== this.isVisible()) {
+        if (action === 'show' && contents) {
+          this.content = contents;
+        }
+        this.setFlags(visible);
+        this.dispatchEvent(this.element(modal), `modal:${action}`);
+      }
     }
   }
 
@@ -98,8 +103,10 @@ export default class {
    * Relocate modal.
    */
   relocate() {
-    this.setFlags();
-    this.dispatchEvent(this.element(modal), 'modal:relocate');
+    if (this.isVisible()) {
+      this.setFlags();
+      this.dispatchEvent(this.element(modal), 'modal:relocate');
+    }
   }
 
   /**
@@ -107,58 +114,60 @@ export default class {
    * @param {string} contents Modal content.
    */
   create(contents) {
-    // Append modal and store its elements.
-    this.elements = Dom.appendHtml(this.template.render());
+    if (!this.elements.length) {
+      // Append modal and store its elements.
+      this.elements = Dom.appendHtml(this.template.render());
 
-    // Store instance reference inside parent template elements
-    this.elements.forEach((element) => {
-      Object.defineProperty(element, '_Modi', { value: this });
-    });
-
-    // Set content
-    this.content = contents || '';
-
-    // Close element handler
-    if (this.element(close)) {
-      this.addListener(this.element(close), 'click', () => {
-        this.hide();
+      // Store instance reference inside parent template elements
+      this.elements.forEach((element) => {
+        Object.defineProperty(element, '_Modi', { value: this });
       });
-    }
 
-    // Overlay close handler
-    if (Dom.data.get(this.element(overlay), 'outsideClose') === 'true') {
-      this.addListener(this.element(overlay), 'click', (e) => {
-        if (e.target.dataset.element === 'overlay') {
+      // Set content
+      this.content = contents || '';
+
+      // Close element handler
+      if (this.element(close)) {
+        this.addListener(this.element(close), 'click', () => {
           this.hide();
-        }
+        });
+      }
+
+      // Overlay close handler
+      if (Dom.data.get(this.element(overlay), 'outsideClose') === 'true') {
+        this.addListener(this.element(overlay), 'click', (e) => {
+          if (e.target.dataset.element === 'overlay') {
+            this.hide();
+          }
+        });
+      }
+
+      // Window resize handler for modal relocation
+      this.resizeTimer = null;
+      this.addListener(window, 'resize', () => {
+        clearTimeout(this.resizeTimer);
+        this.resizeTimer = setTimeout(() => {
+          this.relocate();
+        }, 300);
       });
-    }
 
-    // Window resize handler for modal relocation
-    this.resizeTimer = null;
-    this.addListener(window, 'resize', () => {
-      clearTimeout(this.resizeTimer);
-      this.resizeTimer = setTimeout(() => {
-        this.relocate();
-      }, 300);
-    });
+      // Template events
+      if (this.template.hasEvents()) {
+        // Add listeners to dispatch custom events
+        this.template.events.forEach((ev) => {
+          let element = Dom.getByAttr(ev.selector, this.element(modal))[0];
 
-    // Template events
-    if (this.template.hasEvents()) {
-      // Add listeners to dispatch custom events
-      this.template.events.forEach((ev) => {
-        let element = Dom.getByAttr(ev.selector, this.element(modal))[0];
-
-        if (element) {
-          this.addListener(element, ev.type, () => {
-            // Check for custom element dispatcher
-            if (['overlay', 'modal'].indexOf(ev.dispatcher) !== -1) {
-              element = this.element(ev.dispatcher);
-            }
-            this.dispatchEvent(element, ev.name);
-          });
-        }
-      });
+          if (element) {
+            this.addListener(element, ev.type, () => {
+              // Check for custom element dispatcher
+              if (['overlay', 'modal'].indexOf(ev.dispatcher) !== -1) {
+                element = this.element(ev.dispatcher);
+              }
+              this.dispatchEvent(element, ev.name);
+            });
+          }
+        });
+      }
     }
   }
 
@@ -166,16 +175,23 @@ export default class {
    * Remove modal.
    */
   remove() {
-    // Remove listeners
+    this.hide();
+    // Remove listeners.
     this.listeners.forEach((listener) => {
       listener.element.removeEventListener(listener.type, listener.listener);
     });
-    // Remove elements from DOM
+    // Remove elements from DOM.
     this.elements.forEach((element) => {
-      this.container.removeChild(element);
+      Dom.container.removeChild(element);
     });
+    // Clean modal elements references
+    this.elements = [];
+    this.references = {};
   }
 
+  /**
+   * Check if the modal is visible.
+   */
   isVisible() {
     return (Dom.data.get(this.element(modal), 'visible') === 'true');
   }
@@ -208,9 +224,17 @@ export default class {
     return Dom.getByAttr(`[data-element="${name}"]`, parent)[0];
   }
 
-  setFlags() {
+  /**
+   * Set modal flags.
+   */
+  setFlags(visible = this.isVisible()) {
     let smallHeight = false;
     let smallWidth = false;
+
+    [overlay, modal].forEach((element) => {
+      Dom.data.set(this.element(element), 'visible', visible);
+    });
+    Dom.data.set(Dom.container, 'modalVisible', visible);
 
     if (this.element(modal)) {
       smallHeight = window.innerHeight < this.element(modal).offsetHeight;
@@ -259,6 +283,7 @@ export default class {
       if (this.template.listeners[name]) {
         this.template.listeners[name](detail);
       }
+
       // Dispatch custom event
       Dom.event.dispatch(element, name, detail);
     }

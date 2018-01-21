@@ -8,6 +8,12 @@ prev_page_path: templates/actions/
 
 <link href="{{ site.baseurl }}/assets/css/templates/notification/styles.min.css" rel="stylesheet">
 <script src="{{ site.baseurl }}/assets/js/templates/notification/config.js"></script>
+<style>
+body[data-modal-visible='true'],
+body[data-modal-visible='true'] code {
+  overflow: auto;
+}
+</style>
 
 <div markdown="1" class="minitabs">
   <ul class="tabnames">
