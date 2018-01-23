@@ -517,6 +517,45 @@ exports.default = {
   },
 
 
+  /**
+   * Get element siblings.
+   * @param {Element} element Element.
+   * @return {array} Siblings.
+   */
+  getSiblings: function getSiblings(element) {
+    var coll = [];
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = element.parentNode.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var sibling = _step.value;
+
+        if (element.isEqualNode(sibling) === false) {
+          coll.push(sibling);
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    return coll;
+  },
+
+
   style: {
 
     /**
@@ -609,21 +648,42 @@ var _class = function () {
     this.methods = config.methods || {};
   }
 
+  /**
+   * Check if the template has events.
+   * @return {boolean}
+   */
+
+
   _createClass(_class, [{
     key: 'hasEvents',
     value: function hasEvents() {
       return this.events.constructor === [].constructor && this.events.length;
     }
 
-    // Source: Kristof Neirynck @ https://stackoverflow.com/a/378000
+    /**
+     * Render main template.
+     * @return {string}
+     */
 
   }, {
     key: 'render',
     value: function render() {
-      var _this = this;
+      return this.build(this.html, this.data);
+    }
 
-      return this.html.replace(/{([^{}]+)}/g, function (m, key) {
-        return _this.data.hasOwnProperty(key) ? _this.data[key] : '';
+    /**
+     * Make template replacements.
+     * Source: Kristof Neirynck @ https://stackoverflow.com/a/378000
+     * @param {string} tpl Template.
+     * @param {object} data Replacements.
+     * @return {string}
+     */
+
+  }, {
+    key: 'build',
+    value: function build(tpl, data) {
+      return tpl.replace(/{([^{}]+)}/g, function (m, key) {
+        return data.hasOwnProperty(key) ? data[key] : '';
       });
     }
   }]);

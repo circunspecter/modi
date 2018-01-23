@@ -7,6 +7,10 @@ export default class {
     this.methods = config.methods || {};
   }
 
+  /**
+   * Check if the template has events.
+   * @return {boolean}
+   */
   hasEvents() {
     return (
       this.events.constructor === [].constructor &&
@@ -14,10 +18,24 @@ export default class {
     );
   }
 
-  // Source: Kristof Neirynck @ https://stackoverflow.com/a/378000
+  /**
+   * Render main template.
+   * @return {string}
+   */
   render() {
-    return this.html.replace(/{([^{}]+)}/g, (m, key) => {
-      return this.data.hasOwnProperty(key) ? this.data[key] : '';
+    return this.build(this.html, this.data);
+  }
+
+  /**
+   * Make template replacements.
+   * Source: Kristof Neirynck @ https://stackoverflow.com/a/378000
+   * @param {string} tpl Template.
+   * @param {object} data Replacements.
+   * @return {string}
+   */
+  build(tpl, data) {
+    return tpl.replace(/{([^{}]+)}/g, function(m, key) {
+      return data.hasOwnProperty(key) ? data[key] : '';
     });
   }
 }

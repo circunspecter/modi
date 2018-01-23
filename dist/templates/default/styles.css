@@ -10,7 +10,6 @@ body[data-modal-visible='true'] {
   justify-content: center;
   left: 0;
   overflow-y: auto;
-  padding: 0 15px 0 5px;
   position: fixed;
   top: 0;
   width: 100%;

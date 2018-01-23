@@ -52,6 +52,22 @@ export default {
     return container.querySelectorAll(selector);
   },
 
+  /**
+   * Get element siblings.
+   * @param {Element} element Element.
+   * @return {array} Siblings.
+   */
+  getSiblings(element) {
+    let coll = [];
+
+    for (const sibling of element.parentNode.children) {
+      if (element.isEqualNode(sibling) === false) {
+        coll.push(sibling);
+      }
+    }
+    return coll;
+  },
+
   style: {
 
     /**
