@@ -9,9 +9,14 @@
     <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ page.meta_description }}">
-    <link rel="shortcut icon" href="{{ site.baseurl }}/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ site.baseurl }}/assets/img/favicon.ico" type="image/x-icon" />
     <link href="{{ site.baseurl }}/assets/css/main.css" rel="stylesheet">
-    <script src="{{ site.baseurl }}/assets/js/modi.min.js"></script>
+    {% assign baseurl_release = site.baseurl %}
+    {% if page.release %}
+      {% capture release_path %}/releases/{{ page.release }}{% endcapture %}
+      {% capture baseurl_release %}{{ site.baseurl }}{{ release_path }}{% endcapture %}
+    {% endif %}
+    <script src="{{ baseurl_release }}/assets/js/modi.min.js"></script>
     <script src="{{ site.baseurl }}/assets/js/main.js"></script>
   </head>
   <body>
@@ -19,6 +24,9 @@
       <div class="panel">
         <div class="header">
           MODI
+          {% if page.release %}
+            <span class="release-tag">{{ page.release }}</span>
+          {% endif %}
           <button class="close" id="mainNavToggle">×</button>
         </div>
         {% capture menu %}{% include menu.md %}{% endcapture %}
@@ -29,7 +37,10 @@
       <div class="grid">
   			<h1 class="col-1-1 title">
           <button class="nav-toggle" id="headerMenuToggle">&equiv;</button>
-  				<a href="{{ site.baseurl }}/">MODI</a>
+  				<a href="{{ baseurl_release }}/">MODI</a>
+          {% if page.release %}
+            <span class="release-tag">{{ page.release }}</span>
+          {% endif %}
   			</h1>
       </div>
 		</header>
@@ -43,10 +54,10 @@
         {{ content }}
         <footer markdown="0">
           {% if page.prev_page_title %}
-            <a href="{{ site.baseurl }}/{{ page.prev_page_path}}" title="{{ page.prev_page_title }}" class="button gray-light">&lsaquo;&lsaquo; {{ page.prev_page_title }}</a>
+            <a href="{{ baseurl_release }}/{{ page.prev_page_path}}" title="{{ page.prev_page_title }}" class="button gray-light">&lsaquo;&lsaquo; {{ page.prev_page_title }}</a>
           {% endif %}
           {% if page.next_page_title %}
-            <a href="{{ site.baseurl }}/{{ page.next_page_path}}" title="{{ page.next_page_title }}" class="button gray-light pullr">{{ page.next_page_title }} &rsaquo;&rsaquo;</a>
+            <a href="{{ baseurl_release }}/{{ page.next_page_path}}" title="{{ page.next_page_title }}" class="button gray-light pullr">{{ page.next_page_title }} &rsaquo;&rsaquo;</a>
           {% endif %}
         </footer>
 			</article>

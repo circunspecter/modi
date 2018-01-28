@@ -8,12 +8,11 @@ const close = 'close';
 const content = 'content';
 
 export default class {
-  constructor(config, initialize) {
-    config = config || {};
-
+  constructor(config = {}, initialize = true) {
     // Modal config
     this.config = Object.assign({
       container: document.body,
+      eventsNamespace: 'modal',
       content: null,
       template: null,
       data: Object.assign({}, config.data)
@@ -84,17 +83,17 @@ export default class {
       let action = (visible === true) ? 'show' : 'hide';
       // By default, try to run template's method
       if (runDefault !== true && this.template.methods[action]) {
+        let args = [this];
         if (action === 'show') {
-          this.template.methods.show(contents, this);
-        } else {
-          this.template.methods.hide(this);
+          args.unshift(contents);
         }
+        this.template.methods[action](...args);
       } else if (visible !== this.isVisible()) {
         if (action === 'show' && contents) {
           this.content = contents;
         }
         this.setFlags(visible);
-        this.dispatchEvent(this.element(modal), `modal:${action}`);
+        this.dispatchEvent(action);
       }
     }
   }
@@ -105,7 +104,7 @@ export default class {
   relocate() {
     if (this.isVisible()) {
       this.setFlags();
-      this.dispatchEvent(this.element(modal), 'modal:relocate');
+      this.dispatchEvent('relocate');
     }
   }
 
@@ -113,7 +112,7 @@ export default class {
    * Create modal.
    * @param {string} contents Modal content.
    */
-  create(contents) {
+  create(contents = '') {
     if (!this.elements.length) {
       // Append modal and store its elements.
       this.elements = Dom.appendHtml(this.template.render());
@@ -124,47 +123,50 @@ export default class {
       });
 
       // Set content
-      this.content = contents || '';
+      this.content = contents;
 
       // Close element handler
       if (this.element(close)) {
-        this.addListener(this.element(close), 'click', () => {
+        this.addListener('click', () => {
           this.hide();
-        });
+        }, this.element(close));
       }
 
       // Overlay close handler
       if (Dom.data.get(this.element(overlay), 'outsideClose') === 'true') {
-        this.addListener(this.element(overlay), 'click', (e) => {
+        this.addListener('click', (e) => {
           if (e.target.dataset.element === 'overlay') {
             this.hide();
           }
-        });
+        }, this.element(overlay));
       }
 
       // Window resize handler for modal relocation
       this.resizeTimer = null;
-      this.addListener(window, 'resize', () => {
+      this.addListener('resize', () => {
         clearTimeout(this.resizeTimer);
         this.resizeTimer = setTimeout(() => {
           this.relocate();
         }, 300);
-      });
+      }, window);
 
       // Template events
       if (this.template.hasEvents()) {
         // Add listeners to dispatch custom events
         this.template.events.forEach((ev) => {
-          let element = Dom.getByAttr(ev.selector, this.element(modal))[0];
-
+          let element = this.elements
+            .map(parent => Dom.getByAttr(ev.selector, parent)[0])
+            .filter(result => Dom.isElement(result))[0];
           if (element) {
-            this.addListener(element, ev.type, () => {
+            this.addListener(ev.type, () => {
               // Check for custom element dispatcher
-              if (['overlay', 'modal'].indexOf(ev.dispatcher) !== -1) {
+              if (ev.dispatcher === 'instance') {
+                element = this.elements[0];
+              } else if (ev.dispatcher && this.element(ev.dispatcher)) {
                 element = this.element(ev.dispatcher);
               }
-              this.dispatchEvent(element, ev.name);
-            });
+              this.dispatchEvent(ev.name, {}, element);
+            }, element);
           }
         });
       }
@@ -184,7 +186,8 @@ export default class {
     this.elements.forEach((element) => {
       Dom.container.removeChild(element);
     });
-    // Clean modal elements references
+    // Clean references
+    this.listeners = [];
     this.elements = [];
     this.references = {};
   }
@@ -207,9 +210,7 @@ export default class {
         // Search it inside the "parents" collection.
         this.elements.filter((el) => el.dataset.element === name)[0] ||
         // Search it inside each "parent" element.
-        this.elements.map((el) => this.getSubElement(name, el))[0] ||
-        // Search it inside the body.
-        this.getSubElement(name, Dom.container);
+        this.elements.map((el) => this.getSubElement(name, el))[0];
     }
     return this.references[name];
   }
@@ -250,12 +251,12 @@ export default class {
 
   /**
    * Adds specified event listener and stores it inside listeners collection.
-   * @param {Element} element Target element.
    * @param {string} type Event type.
    * @param {function|EventListener} listener Event handler.
+   * @param {Element} element Target element.
    */
-  addListener(element, type, listener) {
-    if (element) {
+  addListener(type, listener, element = this.elements[0]) {
+    if (Dom.isElement(element) || element === window) {
       element.addEventListener(type, listener);
       this.listeners.push({
         element: element,
@@ -267,25 +268,33 @@ export default class {
 
   /**
    * Dispatch custom envent.
-   * @param {Element} element Target element.
    * @param {string} name Event name.
    * @param {object} detail Event detail data.
+   * @param {Element} element Target element.
    */
-  dispatchEvent(element, name, detail) {
-    if (element) {
-      detail = Object.assign({
-        instance: this,
-        overlay: this.element(overlay),
-        modal: this.element(modal)
-      }, detail);
+  dispatchEvent(name, detail, element = this.elements[0]) {
+    let nameWithNamespace = `${this.config.eventsNamespace}:${name}`;
+    detail = Object.assign({
+      instance: this,
+      overlay: this.element(overlay),
+      modal: this.element(modal)
+    }, detail);
 
-      // Run template's event
-      if (this.template.listeners[name]) {
-        this.template.listeners[name](detail);
-      }
+    // Run template's event.
+    if (this.template.listeners[name]) {
+      this.template.listeners[name](detail);
+    }
 
-      // Dispatch custom event
-      Dom.event.dispatch(element, name, detail);
+    // Determine target elements.
+    let targetElements = element ?
+      [element] :
+      this.listeners.filter(l => l.type === nameWithNamespace).map(l => l.element);
+
+    if (targetElements.length) {
+      // Dispatch custom event ignoring repeated targets.
+      (new Set(targetElements)).forEach((target) => {
+        Dom.event.dispatch(target, nameWithNamespace, detail);
+      });
     }
   }
 }

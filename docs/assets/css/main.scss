@@ -139,6 +139,14 @@ body[data-modal-visible='true'] {
   padding-right: 10px;
 }
 
+.release-tag {
+  background-color: $orange;
+  border-radius: 4px;
+  color: $font-color;
+  margin-left: 10px;
+  padding: 5px;
+}
+
 // Menu
 .main-nav {
   background: rgba(0, 0, 0, 0.5);

@@ -1,3 +1,4 @@
+/*! modi 2.0.0 | github.com/circunspecter/modi */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -108,14 +109,16 @@ var close = 'close';
 var content = 'content';
 
 var _class = function () {
-  function _class(config, initialize) {
-    _classCallCheck(this, _class);
+  function _class() {
+    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var initialize = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-    config = config || {};
+    _classCallCheck(this, _class);
 
     // Modal config
     this.config = Object.assign({
       container: document.body,
+      eventsNamespace: 'modal',
       content: null,
       template: null,
       data: Object.assign({}, config.data)
@@ -182,17 +185,19 @@ var _class = function () {
         var action = visible === true ? 'show' : 'hide';
         // By default, try to run template's method
         if (runDefault !== true && this.template.methods[action]) {
+          var _template$methods;
+
+          var args = [this];
           if (action === 'show') {
-            this.template.methods.show(contents, this);
-          } else {
-            this.template.methods.hide(this);
+            args.unshift(contents);
           }
+          (_template$methods = this.template.methods)[action].apply(_template$methods, args);
         } else if (visible !== this.isVisible()) {
           if (action === 'show' && contents) {
             this.content = contents;
           }
           this.setFlags(visible);
-          this.dispatchEvent(this.element(modal), 'modal:' + action);
+          this.dispatchEvent(action);
         }
       }
     }
@@ -206,7 +211,7 @@ var _class = function () {
     value: function relocate() {
       if (this.isVisible()) {
         this.setFlags();
-        this.dispatchEvent(this.element(modal), 'modal:relocate');
+        this.dispatchEvent('relocate');
       }
     }
 
@@ -217,8 +222,10 @@ var _class = function () {
 
   }, {
     key: 'create',
-    value: function create(contents) {
+    value: function create() {
       var _this = this;
+
+      var contents = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
       if (!this.elements.length) {
         // Append modal and store its elements.
@@ -230,47 +237,52 @@ var _class = function () {
         });
 
         // Set content
-        this.content = contents || '';
+        this.content = contents;
 
         // Close element handler
         if (this.element(close)) {
-          this.addListener(this.element(close), 'click', function () {
+          this.addListener('click', function () {
             _this.hide();
-          });
+          }, this.element(close));
         }
 
         // Overlay close handler
         if (_Dom2.default.data.get(this.element(overlay), 'outsideClose') === 'true') {
-          this.addListener(this.element(overlay), 'click', function (e) {
+          this.addListener('click', function (e) {
             if (e.target.dataset.element === 'overlay') {
               _this.hide();
             }
-          });
+          }, this.element(overlay));
         }
 
         // Window resize handler for modal relocation
         this.resizeTimer = null;
-        this.addListener(window, 'resize', function () {
+        this.addListener('resize', function () {
           clearTimeout(_this.resizeTimer);
           _this.resizeTimer = setTimeout(function () {
             _this.relocate();
           }, 300);
-        });
+        }, window);
 
         // Template events
         if (this.template.hasEvents()) {
           // Add listeners to dispatch custom events
           this.template.events.forEach(function (ev) {
-            var element = _Dom2.default.getByAttr(ev.selector, _this.element(modal))[0];
-
+            var element = _this.elements.map(function (parent) {
+              return _Dom2.default.getByAttr(ev.selector, parent)[0];
+            }).filter(function (result) {
+              return _Dom2.default.isElement(result);
+            })[0];
             if (element) {
-              _this.addListener(element, ev.type, function () {
+              _this.addListener(ev.type, function () {
                 // Check for custom element dispatcher
-                if (['overlay', 'modal'].indexOf(ev.dispatcher) !== -1) {
+                if (ev.dispatcher === 'instance') {
+                  element = _this.elements[0];
+                } else if (ev.dispatcher && _this.element(ev.dispatcher)) {
                   element = _this.element(ev.dispatcher);
                 }
-                _this.dispatchEvent(element, ev.name);
-              });
+                _this.dispatchEvent(ev.name, {}, element);
+              }, element);
             }
           });
         }
@@ -293,7 +305,8 @@ var _class = function () {
       this.elements.forEach(function (element) {
         _Dom2.default.container.removeChild(element);
       });
-      // Clean modal elements references
+      // Clean references
+      this.listeners = [];
       this.elements = [];
       this.references = {};
     }
@@ -328,9 +341,7 @@ var _class = function () {
         // Search it inside each "parent" element.
         this.elements.map(function (el) {
           return _this2.getSubElement(name, el);
-        })[0] ||
-        // Search it inside the body.
-        this.getSubElement(name, _Dom2.default.container);
+        })[0];
       }
       return this.references[name];
     }
@@ -381,15 +392,17 @@ var _class = function () {
 
     /**
      * Adds specified event listener and stores it inside listeners collection.
-     * @param {Element} element Target element.
      * @param {string} type Event type.
      * @param {function|EventListener} listener Event handler.
+     * @param {Element} element Target element.
      */
 
   }, {
     key: 'addListener',
-    value: function addListener(element, type, listener) {
-      if (element) {
+    value: function addListener(type, listener) {
+      var element = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.elements[0];
+
+      if (_Dom2.default.isElement(element) || element === window) {
         element.addEventListener(type, listener);
         this.listeners.push({
           element: element,
@@ -401,28 +414,40 @@ var _class = function () {
 
     /**
      * Dispatch custom envent.
-     * @param {Element} element Target element.
      * @param {string} name Event name.
      * @param {object} detail Event detail data.
+     * @param {Element} element Target element.
      */
 
   }, {
     key: 'dispatchEvent',
-    value: function dispatchEvent(element, name, detail) {
-      if (element) {
-        detail = Object.assign({
-          instance: this,
-          overlay: this.element(overlay),
-          modal: this.element(modal)
-        }, detail);
+    value: function dispatchEvent(name, detail) {
+      var element = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.elements[0];
 
-        // Run template's event
-        if (this.template.listeners[name]) {
-          this.template.listeners[name](detail);
-        }
+      var nameWithNamespace = this.config.eventsNamespace + ':' + name;
+      detail = Object.assign({
+        instance: this,
+        overlay: this.element(overlay),
+        modal: this.element(modal)
+      }, detail);
 
-        // Dispatch custom event
-        _Dom2.default.event.dispatch(element, name, detail);
+      // Run template's event.
+      if (this.template.listeners[name]) {
+        this.template.listeners[name](detail);
+      }
+
+      // Determine target elements.
+      var targetElements = element ? [element] : this.listeners.filter(function (l) {
+        return l.type === nameWithNamespace;
+      }).map(function (l) {
+        return l.element;
+      });
+
+      if (targetElements.length) {
+        // Dispatch custom event ignoring repeated targets.
+        new Set(targetElements).forEach(function (target) {
+          _Dom2.default.event.dispatch(target, nameWithNamespace, detail);
+        });
       }
     }
   }, {
@@ -459,6 +484,9 @@ module.exports = exports['default'];
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 exports.default = {
 
   container: document.body,
@@ -480,17 +508,21 @@ exports.default = {
    * Append elements to DOM.
    * @param {Array} elements Elements collection.
    * @param {Element} container Element container.
-   * @return {Array} Elements collection.
+   * @return {Array|undefined} Elements collection.
    */
-  appendElements: function appendElements(elements, container) {
-    var elementsCopy = [].slice.call(elements);
-    var fragment = document.createDocumentFragment();
+  appendElements: function appendElements(elements) {
+    var container = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.container;
 
-    Array.from(elements).forEach(function (element) {
-      fragment.appendChild(element);
-    });
-    (container || this.container).appendChild(fragment);
-    return elementsCopy;
+    if (this.isElement(container)) {
+      var elementsCopy = Array.from(elements);
+      var fragment = document.createDocumentFragment();
+
+      Array.from(elements).forEach(function (element) {
+        fragment.appendChild(element);
+      });
+      container.appendChild(fragment);
+      return elementsCopy;
+    }
   },
 
 
@@ -498,7 +530,7 @@ exports.default = {
    * Append HTML string to DOM.
    * @param {string} html HTML content.
    * @param {Element} container Element container.
-   * @return {Array} Elements collection.
+   * @return {Array|undefined} Elements collection.
    */
   appendHtml: function appendHtml(html, container) {
     return this.appendElements(this.stringToElements(html), container);
@@ -506,14 +538,17 @@ exports.default = {
 
 
   /**
-   * Get element by attr selector.
+   * Get elements by attr selector.
    * @param {string} selector Selector.
    * @param {Element} container Element container.
-   * @return {NodeList}
+   * @return {NodeList|undefined}
    */
-  getByAttr: function getByAttr(selector, container) {
-    container = container || this.container;
-    return container.querySelectorAll(selector);
+  getByAttr: function getByAttr(selector) {
+    var container = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.container;
+
+    if (this.isElement(container)) {
+      return container.querySelectorAll(selector);
+    }
   },
 
 
@@ -523,101 +558,101 @@ exports.default = {
    * @return {array} Siblings.
    */
   getSiblings: function getSiblings(element) {
-    var coll = [];
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = element.parentNode.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var sibling = _step.value;
-
-        if (element.isEqualNode(sibling) === false) {
-          coll.push(sibling);
-        }
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
-    return coll;
+    return this.isElement(element) ? Array.from(element.parentNode.children).filter(function (sibling) {
+      return element.isEqualNode(sibling) === false;
+    }) : [];
   },
 
 
-  style: {
-
-    /**
-     * Set style property.
-     * @param {Element} element Element.
-     * @param {DOMString} property Style property.
-     * @param {DOMString} value Property value.
-     */
-    set: function set(element, property, value) {
-      element.style.setProperty(property, value);
-    },
-
-
-    /**
-     * Remove style property.
-     * @param {Element} element Element.
-     * @param {DOMString} property Style property.
-     */
-    remove: function remove(element, property) {
-      element.style.removeProperty(property);
-    }
+  /**
+   * Checks for an element node.
+   * @param {Element} element Element.
+   * @return {boolean}
+   */
+  isElement: function isElement(element) {
+    return element !== null && (typeof element === 'undefined' ? 'undefined' : _typeof(element)) === 'object' && element.nodeType === Node.ELEMENT_NODE;
   },
 
-  event: {
 
-    /**
-     * Dispatch custom envent.
-     * @param {Element} element Target element.
-     * @param {string} name Event name.
-     * @param {object} data Event detail data.
-     */
-    dispatch: function dispatch(element, name, data) {
-      element.dispatchEvent(new CustomEvent(name, {
-        detail: data
-      }));
-    }
-  },
+  get style() {
+    return {
+      parent: this,
 
-  data: {
-
-    /**
-     * Get data attribute.
-     * @param {Element} element Element.
-     * @param {string} name Attribute.
-     * @return {string|undefined}
-     */
-    get: function get(element, name) {
-      return (element || {}).dataset ? element.dataset[name] : undefined;
-    },
+      /**
+       * Set style property.
+       * @param {Element} element Element.
+       * @param {DOMString} property Style property.
+       * @param {DOMString} value Property value.
+       */
+      set: function set(element, property, value) {
+        if (this.parent.isElement(element)) {
+          element.style.setProperty(property, value);
+        }
+      },
 
 
-    /**
-     * Set data attribute.
-     * @param {Element} element Element.
-     * @param {string} name Attribute.
-     * @param {string} value Value.
-     */
-    set: function set(element, name, value) {
-      if ((element || {}).dataset) {
-        element.dataset[name] = value;
+      /**
+       * Remove style property.
+       * @param {Element} element Element.
+       * @param {DOMString} property Style property.
+       */
+      remove: function remove(element, property) {
+        if (this.parent.isElement(element)) {
+          element.style.removeProperty(property);
+        }
       }
-    }
+    };
+  },
+
+  get event() {
+    return {
+      parent: this,
+
+      /**
+       * Dispatch custom envent.
+       * @param {Element} element Target element.
+       * @param {string} name Event name.
+       * @param {object} data Event detail data.
+       */
+      dispatch: function dispatch(element, name, data) {
+        if (this.parent.isElement(element)) {
+          element.dispatchEvent(new CustomEvent(name, {
+            detail: data
+          }));
+        }
+      }
+    };
+  },
+
+  get data() {
+    return {
+      parent: this,
+
+      /**
+       * Get data attribute.
+       * @param {Element} element Element.
+       * @param {string} name Attribute.
+       * @return {string|undefined}
+       */
+      get: function get(element, name) {
+        if (this.parent.isElement(element)) {
+          return element.dataset[name];
+        }
+      },
+
+
+      /**
+       * Set data attribute.
+       * @param {Element} element Element.
+       * @param {string} name Attribute.
+       * @param {string} value Value.
+       */
+      set: function set(element, name, value) {
+        if (this.parent.isElement(element)) {
+          element.dataset[name] = value;
+        }
+      }
+    };
   }
 };
 module.exports = exports['default'];

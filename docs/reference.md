@@ -8,7 +8,21 @@ next_page_title: Default template
 next_page_path: templates/default/
 ---
 
+#### constructor <code>Object: config, Boolean: initialize</code>
+
+{: .list .indent}
+- <code>config</code>: optional. Modal configuration.
+- <code>initialize</code>: optional. Sets whether the modal has to be initialized. Default: true.
+
 ### Properties
+
+#### container
+
+Modal container.
+
+#### eventsNamespace
+
+Events namespace. If it's set to <code>"modal"</code>, listener event must be prefixed accordingly. For example: <code>element.addEventListener('modal:show', (e) => {})</code>.
 
 #### template
 
@@ -51,7 +65,7 @@ Dispatches <code>modal:relocate</code> event.
 
 #### create <code>String: contents</code>
 
-Initialize the modal. Appends elements to the DOM and attaches listeners. Triggered on instantiation.
+Initialize the modal. Appends elements to the DOM and attaches listeners. Triggered on instantiation by default.
 
 #### remove
 
@@ -60,6 +74,25 @@ Removes the elements and the listeners.
 #### element <code>String: name</code>
 
 Returns the specified [template element]({{ site.baseurl }}/configuration/#html "Configuration"). <code>undefined</code> otherwise.
+
+#### isVisible
+
+Check if the modal is visible.
+
+#### addListener <code>String: type, EventListener: listener, Element: element</code>
+
+Adds specified event listener and stores it inside listeners collection.
+
+{: .list .indent}
+- <code>type</code>: Event type.
+- <code>listener</code>: Event handler.
+- <code>element</code>: optional. Target element. Default: first template's element.
+
+```js
+myModal.addListener('modal:show', (e) => {
+  console.log('show dispatched!');
+});
+```
 
 ### Events
 
@@ -71,19 +104,22 @@ Returns the specified [template element]({{ site.baseurl }}/configuration/#html 
 - <code>modal</code>: modal element.
 
 ```js
-myModal.element('modal').addEventListener('modal:hide', (e) => {
+myModal.addListener('modal:hide', (e) => {
   console.log(e.detail.instance);
 });
 ```
 
-#### modal:show
+#### show
 
 Triggered when the modal is shown.
 
-#### modal:hide
+#### hide
 
 Triggered when the modal hides.
 
-#### modal:relocate
+#### relocate
 
 Triggered on window resize and <code>relocate</code> method call.
+
+{: .note}
+Events collection can be extended using [template events]({{ site.baseurl }}/configuration#events "Template events").

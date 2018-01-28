@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: release
+release: 1.1.0
 title: Actions template
 meta_description: "Modi: actions template"
 prev_page_title: Default template
@@ -8,8 +9,8 @@ next_page_title: Notification template
 next_page_path: templates/notification/
 ---
 
-<link href="{{ site.baseurl }}/assets/css/templates/actions/styles.min.css" rel="stylesheet">
-<script src="{{ site.baseurl }}/assets/js/templates/actions/config.js"></script>
+<link href="{{ site.baseurl }}/releases/{{ page.release }}/assets/css/templates/actions/styles.min.css" rel="stylesheet">
+<script src="{{ site.baseurl }}/releases/{{ page.release }}/assets/js/templates/actions/config.js"></script>
 
 Modal with action buttons and events.
 
@@ -44,13 +45,13 @@ var modiActionsTplConfig = {
 
   events: [
     {
-      name: 'accept',
+      name: 'modal:accept',
       type: 'click',
       selector: '[data-element="actions"] [data-action="accept"]',
-      dispatcher: 'instance'
+      dispatcher: 'modal'
     },
     {
-      name: 'cancel',
+      name: 'modal:cancel',
       type: 'click',
       selector: '[data-element="actions"] [data-action="cancel"]',
       dispatcher: 'modal'
@@ -83,6 +84,7 @@ body {
     justify-content: center;
     left: 0;
     overflow-y: auto;
+    padding: 0 15px 0 5px;
     position: fixed;
     top: 0;
     width: 100%;
@@ -191,21 +193,13 @@ var question = new Modi({
 });
 var answer = new Modi();
 
-// The dispatcher for the "accept" event is "instance", so we can use
-// the "addListener" method to attach our listener.
-question.addListener('modal:accept', (e) => {
+question.element('modal').addEventListener('modal:accept', (e) => {
   question.hide();
   answer.show('Oops.. something went wrong. Please, try again.');
 });
-
-// The "cancel" event is configured to use the "modal" element as the target.
 question.element('modal').addEventListener('modal:cancel', (e) => {
   question.hide();
 });
-// It's also possible to use "addListener" specifying the desired element.
-// question.addListener.('modal:cancel', (e) => {
-//   question.hide();
-// }, question.element('modal'));
 ```
 
 <script style="text/javascript">
@@ -219,7 +213,7 @@ question.element('modal').addEventListener('modal:cancel', (e) => {
   });
   var answer = new Modi();
 
-  question.addListener('modal:accept', (e) => {
+  question.element('modal').addEventListener('modal:accept', (e) => {
     question.hide();
     answer.show('Oops.. something went wrong. Please, try again.');
   });

@@ -1,13 +1,14 @@
 ---
-layout: default
+layout: release
+release: 1.1.0
 title: Notification template
 meta_description: "Modi: notification template"
 prev_page_title: Actions template
 prev_page_path: templates/actions/
 ---
 
-<link href="{{ site.baseurl }}/assets/css/templates/notification/styles.min.css" rel="stylesheet">
-<script src="{{ site.baseurl }}/assets/js/templates/notification/config.js"></script>
+<link href="{{ site.baseurl }}/releases/{{ page.release }}/assets/css/templates/notification/styles.min.css" rel="stylesheet">
+<script src="{{ site.baseurl }}/releases/{{ page.release }}/assets/js/templates/notification/config.js"></script>
 <style>
 body[data-modal-visible='true'],
 body[data-modal-visible='true'] code {
@@ -40,7 +41,7 @@ var modiNotificationTplConfig = {
 
   listeners: {
 
-    show: (detail) => {
+    'modal:show': (detail) => {
       clearTimeout(detail.instance.template.hideTimer);
       detail.instance.template.hideTimer = setTimeout(() => {
         detail.instance.hide();
@@ -212,10 +213,10 @@ On this page, as there are multiple notificatons and no stacking, only the curre
 ```js
 var notifications = document.body.querySelectorAll('.modi-notification');
 notifications.forEach((notification) => {
-  notification._Modi.addListener('modal:show', (e) => {
-    notifications.forEach((sibling) => {
-      if (!e.detail.modal.isEqualNode(sibling)) {
-        sibling._Modi.hide();
+  notification.addEventListener('modal:show', (e) => {
+    [].forEach.call(notifications, (notification) => {
+      if (notification.dataset.visible === 'true' && e.detail.modal !== notification) {
+        notification._Modi.hide();
       }
     });
   });
@@ -225,11 +226,11 @@ notifications.forEach((notification) => {
 
 <script style="text/javascript">
 var notifications = document.body.querySelectorAll('.modi-notification');
-notifications.forEach(function (notification) {
-  notification._Modi.addListener('modal:show', function (e) {
-    notifications.forEach(function (sibling) {
-      if (!e.detail.modal.isEqualNode(sibling)) {
-        sibling._Modi.hide();
+notifications.forEach((notification) => {
+  notification.addEventListener('modal:show', (e) => {
+    [].forEach.call(notifications, (notification) => {
+      if (notification.dataset.visible === 'true' && e.detail.modal !== notification) {
+        notification._Modi.hide();
       }
     });
   });

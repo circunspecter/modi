@@ -16,7 +16,7 @@ var modiNotificationTplConfig = {
 
   listeners: {
 
-    show: (detail) => {
+    'modal:show': (detail) => {
       clearTimeout(detail.instance.template.hideTimer);
       detail.instance.template.hideTimer = setTimeout(() => {
         detail.instance.hide();

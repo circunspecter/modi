@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: release
+release: 1.1.0
 title: Configuration
 meta_description: "Modi: configuration"
 prev_page_title: Download & installation
@@ -13,7 +14,6 @@ Config structure:
 ```js
 cnf = {
   container: {Element},
-  eventsNamespace: {String},
   content: {String},
   template: {
     html: {String},
@@ -32,17 +32,13 @@ cnf = {
 
 Element where the modal will be inserted. Default: <code>document.body</code>.
 
-### eventsNamespace
-
-Namespace to be applied when dispatching events. Default: <code>modal</code>.
-
 ### content
 
 Modal's content. Can be established after creation. Default: <code>""</code>.
 
 ### template
 
-Defines the structure and default behaviour. Some examples can be found under templates section: [default]({{ site.baseurl }}/templates/default "Default template"), [actions]({{ site.baseurl }}/templates/actions "Actions template"), [notification]({{ site.baseurl }}/templates/notification "Notification template").
+Defines the structure and default behaviour. Some examples can be found under templates section: [default]({{ site.baseurl }}/releases/{{ page.release }}/templates/default "Default template"), [actions]({{ site.baseurl }}/releases/{{ page.release }}/templates/actions "Actions template"), [notification]({{ site.baseurl }}/releases/{{ page.release }}/templates/notification "Notification template").
 
 <div markdown="1" class="indent">
 
@@ -64,7 +60,7 @@ Modi is aware of the following elements:
   - __overlay__: optional. When inserted manually in the same <code>container</code> and contains the <code>data-element</code> definition, Modi will be aware of the element, allowing you to have a shared overlay between modals.
   - __modal__: required. Modal container.
     - <code>small-width</code>: optional. Defines the break point where <code>small-width-flag</code> data attribute turns <code>true</code> or <code>false</code>.
-  - __close__: optional. When present, an event handler will be attached to the element and will trigger the [hide method]({{ site.baseurl }}/reference#methods "Reference").
+  - __close__: optional. When present, an event handler will be attached to the element and will trigger the [hide method]({{ site.baseurl }}/releases/{{ page.release }}/reference#methods "Reference").
   - __content__: required if you plan to alter the content through Modi. Otherwise, it can be ignored.
 
 The following boolean flags will be present as data attributes:
@@ -91,21 +87,21 @@ data: {
 Custom events. Definition:
 
 {: .list .indent}
-- __name__: required. Name of the event. Mustn't be prefixed with the namespace, it will be automatically prefixed before event dispatch.
+- __name__: required. Name of the event.
 - __type__: required. Type of the event.
 - __selector__: required. Selector that points to the dispatcher element. The element must be inside the <code>container</code>.
-- __dispatcher__: optional. Dispatcher element. Default: selector. It’s possible to set it to <code>instance</code> (the first template element) or any element name present in the template (<code>data-element</code>).
+- __dispatcher__: optional. It's possible to set the <code>overlay</code> or <code>modal</code> element as the dispatcher.
 
-For example, [actions template]({{ site.baseurl }}/templates/actions/ "Actions template") have an "accept" button that dispatches an <code>accept</code> event on click.
+For example, [actions template]({{ site.baseurl }}/releases/{{ page.release }}/templates/actions/ "Actions template") have an "accept" button that dispatches a <code>modal:accept</code> event on click.
 
 ```js
 {
   events: [
     {
-      name: 'accept',
+      name: 'modal:accept',
       type: 'click',
       selector: '[data-element="actions"] [data-action="accept"]',
-      dispatcher: 'instance'
+      dispatcher: 'modal'
     }
   ]
 }
@@ -113,26 +109,22 @@ For example, [actions template]({{ site.baseurl }}/templates/actions/ "Actions t
 
 #### listeners
 
-Any of the events can be captured by the template. This includes the [default events]({{ site.baseurl }}/reference#events "Events") and the custom ones.
-
-The name of the events mustn't be prefixed with the namespace. Modi won't use it when interacting with the template in order to facilitate the reusability.
+Any of the events can be captured by the template. This includes the [default events]({{ site.baseurl }}/releases/{{ page.release }}/reference#events "Events") and the custom ones.
 
 For example:
 
 ```js
 listeners: {
-  // internal event
-  hide: (detail) => {
-    console.log('hide dispatched!');
+  'modal:hide': (detail) => {
+    console.log('modal:hide dispatched!');
   },
-  // custom event defined in template
-  accept: (detail) => {
-    console.log('accept dispatched!');
+  'modal:accept': (detail) => {
+    console.log('modal:accept dispatched!');
   }
 }
 ```
 
-The [notification template]({{ site.baseurl }}/templates/notification "Notification template") contains an example.
+The [notification template]({{ site.baseurl }}/releases/{{ page.release }}/templates/notification "Notification template") contains an example.
 
 #### methods
 
@@ -151,5 +143,5 @@ methods: {
 }
 ```
 
-The [notification template]({{ site.baseurl }}/templates/notification "Notification template") contains an example.
+The [notification template]({{ site.baseurl }}/releases/{{ page.release }}/templates/notification "Notification template") contains an example.
 </div>

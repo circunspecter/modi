@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: release
+release: 1.1.0
 title: Default template
 meta_description: "Modi: default template"
 prev_page_title: Reference
@@ -8,7 +9,7 @@ next_page_title: Actions template
 next_page_path: templates/actions/
 ---
 
-<link href="{{ site.baseurl }}/assets/css/templates/default/styles.min.css" rel="stylesheet">
+<link href="{{ site.baseurl }}/releases/{{ page.release }}/assets/css/templates/default/styles.min.css" rel="stylesheet">
 
 <div markdown="1" class="minitabs">
   <ul class="tabnames">
@@ -53,6 +54,7 @@ body[data-modal-visible='true'] {
   justify-content: center;
   left: 0;
   overflow-y: auto;
+  padding: 0 15px 0 5px;
   position: fixed;
   top: 0;
   width: 100%;

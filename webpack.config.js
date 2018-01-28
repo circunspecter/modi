@@ -7,6 +7,7 @@ let libraryName = 'Modi';
 let outputFile = libraryName.toLowerCase();
 let entry = path.join(__dirname, '/src/Modal.js');
 let envProduction = (process.env.NODE_ENV === 'production');
+let version = require('./package.json').version;
 
 // Exports
 module.exports = {
@@ -39,10 +40,14 @@ module.exports = {
     new UglifyJsPlugin({
       include: /\.min\.js$/,
       minimize: true,
-      sourceMap: false,
+      sourceMap: true,
       compress: {
         warnings: false
       }
+    }),
+    new webpack.BannerPlugin({
+      banner: `modi ${version} | github.com/circunspecter/modi`,
+      entryOnly: true
     }),
     new WebpackShellPlugin({
       onAfterEmit: ['gulp cp:docs:lib']

@@ -22,13 +22,13 @@ var modiActionsTplConfig = {
 
   events: [
     {
-      name: 'accept',
+      name: 'modal:accept',
       type: 'click',
       selector: '[data-element="actions"] [data-action="accept"]',
-      dispatcher: 'instance'
+      dispatcher: 'modal'
     },
     {
-      name: 'cancel',
+      name: 'modal:cancel',
       type: 'click',
       selector: '[data-element="actions"] [data-action="cancel"]',
       dispatcher: 'modal'
