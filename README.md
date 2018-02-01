@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/circunspecter/modi.svg?branch=master)](https://travis-ci.org/circunspecter/modi)
+[![Coverage Status](https://coveralls.io/repos/github/circunspecter/modi/badge.svg?branch=master)](https://coveralls.io/github/circunspecter/modi?branch=master)
+
 # Modi
 Flexible and configurable modals.
 

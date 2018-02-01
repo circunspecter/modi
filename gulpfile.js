@@ -1,4 +1,5 @@
 const gulp = require('gulp');
+const runSequence = require('run-sequence');
 const sass = require('gulp-sass');
 const rename = require('gulp-rename');
 const watch = require('gulp-watch');
@@ -67,3 +68,10 @@ gulp.task('cp:docs:configs:watch', ['cp:docs:configs'], () => {
 });
 
 gulp.task('cp:docs', ['cp:docs:lib', 'cp:docs:styles', 'cp:docs:configs']);
+
+// Build
+// -----
+
+gulp.task('build', function(cb) {
+  runSequence('sass:compile', 'sass:compile:min', 'cp:templates', 'cp:docs:styles', 'cp:docs:configs', cb);
+});
