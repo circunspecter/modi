@@ -1,4 +1,4 @@
-/*! modi 2.0.0 | github.com/circunspecter/modi */
+/*! modi 2.0.1 | github.com/circunspecter/modi */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -421,9 +421,7 @@ var _class = function () {
 
   }, {
     key: 'dispatchEvent',
-    value: function dispatchEvent(name, detail) {
-      var element = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.elements[0];
-
+    value: function dispatchEvent(name, detail, element) {
       var nameWithNamespace = this.config.eventsNamespace + ':' + name;
       detail = Object.assign({
         instance: this,
@@ -437,13 +435,17 @@ var _class = function () {
       }
 
       // Determine target elements.
-      var targetElements = element ? [element] : this.listeners.filter(function (l) {
+      var targetElements = [[element], this.listeners.filter(function (l) {
         return l.type === nameWithNamespace;
       }).map(function (l) {
         return l.element;
-      });
+      }), [this.elements[0]]].filter(function (coll) {
+        return coll.filter(function (item) {
+          return _Dom2.default.isElement(item);
+        }).length;
+      })[0];
 
-      if (targetElements.length) {
+      if (targetElements && targetElements.length) {
         // Dispatch custom event ignoring repeated targets.
         new Set(targetElements).forEach(function (target) {
           _Dom2.default.event.dispatch(target, nameWithNamespace, detail);

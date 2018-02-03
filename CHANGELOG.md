@@ -2,6 +2,28 @@
 
 The poject follows [Semantic Versioning](http://semver.org/spec/v2.0.0.html), and this log's format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [2.0.1] - 2018-02-03
+
+### Added
+
+Modi:
+- Tests:
+  - Check that the Modal "show" and "hide" events are dispatched.
+  - Check that "dispatchEvent" doesn't fail when there aren't available targets.
+  - Check that the "Dom.event.dispatch" function ignores non element targets.
+
+### Changed
+
+- Add unnecessary files to .npmignore.
+
+### Fixed
+
+Modi:
+- Modal#dispatchEvent: the default value for the "element" parameter has been moved to the method's body.
+
+Docs:
+- Remove the "container" and "eventsNamespace" properties from reference page and add "config".
+
 ## [2.0.0] - 2018-01-29
 
 ### Added
@@ -70,6 +92,7 @@ Docs:
 
 First release.
 
+[2.0.1]: https://github.com/circunspecter/modi/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/circunspecter/modi/compare/1.1.0...2.0.0
 [1.1.0]: https://github.com/circunspecter/modi/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/circunspecter/modi/compare/1.0.0...1.0.1

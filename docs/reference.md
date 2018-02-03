@@ -16,13 +16,9 @@ next_page_path: templates/default/
 
 ### Properties
 
-#### container
+#### config
 
-Modal container.
-
-#### eventsNamespace
-
-Events namespace. If it's set to <code>"modal"</code>, listener event must be prefixed accordingly. For example: <code>element.addEventListener('modal:show', (e) => {})</code>.
+Configuration object.
 
 #### template
 

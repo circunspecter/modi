@@ -134,6 +134,11 @@ describe('Dom', () => {
         Dom.event.dispatch(element, 'test:event', { foo: 'bar' });
         assert.strictEqual(success, true);
       });
+
+      it('Ignores non element targets.', () => {
+        [null, undefined, 1, true, 'str', {}]
+          .map(target => Dom.event.dispatch(target, 'test:event', { foo: 'bar' }));
+      });
     });
   });
 

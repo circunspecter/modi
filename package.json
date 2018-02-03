@@ -1,6 +1,6 @@
 {
   "name": "@circunspecter/modi",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Modi: flexible and configurable modals. They don't make you the food.",
   "keywords": ["modal"],
   "license": "MIT",

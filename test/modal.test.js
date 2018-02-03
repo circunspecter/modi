@@ -33,7 +33,7 @@ describe('Modal', () => {
       new Modal();
     });
 
-    it('Not fail when empty template provided.', () => {
+    it("Doesn't fail when empty template is provided.", () => {
       new Modal({ template: {} });
     });
   });
@@ -90,6 +90,31 @@ describe('Modal', () => {
       modal = new Modal({ template: template });
       modal.show();
       assert.strictEqual(success, true);
+    });
+
+    it('Dispatches "show" event.', () => {
+      let success = [];
+      let overlayElement = document.body.children[0];
+      let modalElement = document.body.children[0].children[0];
+
+      // Overlay element
+      overlayElement.addEventListener('modal:show', () => {
+        success.push(true);
+      });
+      modal.addListener('modal:show', () => {
+        success.push(true);
+      }, overlayElement);
+
+      // Modal element
+      modalElement.addEventListener('modal:show', () => {
+        success.push(true);
+      });
+      modal.addListener('modal:show', () => {
+        success.push(true);
+      }, modalElement);
+
+      modal.show();
+      assert.sameMembers(success, [true, true, true, true]);
     });
   });
 
@@ -175,10 +200,36 @@ describe('Modal', () => {
       );
       assert.strictEqual(success, true);
     });
+
+    it('Dispatches "hide" event.', () => {
+      let success = [];
+      let overlayElement = document.body.children[0];
+      let modalElement = document.body.children[0].children[0];
+
+      // Overlay element
+      overlayElement.addEventListener('modal:hide', () => {
+        success.push(true);
+      });
+      modal.addListener('modal:hide', () => {
+        success.push(true);
+      }, overlayElement);
+
+      // Modal element
+      modalElement.addEventListener('modal:hide', () => {
+        success.push(true);
+      });
+      modal.addListener('modal:hide', () => {
+        success.push(true);
+      }, modalElement);
+
+      modal.show();
+      modal.hide();
+      assert.sameMembers(success, [true, true, true, true]);
+    });
   });
 
   describe('relocate()', () => {
-    it('Dispatches relocate.', () => {
+    it('Dispatches "relocate" event.', () => {
       let success;
       document.body.children[0].addEventListener('modal:relocate', () => {
         success = true;
@@ -188,7 +239,7 @@ describe('Modal', () => {
       assert.strictEqual(success, true);
     });
 
-    it('Dispatches relocate only when visible.', () => {
+    it('Dispatches "relocate" event only when visible.', () => {
       let success = false;
       document.body.children[0].addEventListener('modal:relocate', () => {
         success = true;
@@ -390,7 +441,7 @@ describe('Modal', () => {
   });
 
   describe('addListener()', () => {
-    it('Ignores non elment targets.', () => {
+    it('Ignores non element targets.', () => {
       [null, undefined, 1, true, 'str', {}]
         .map(target => modal.addListener('test:event', () => {}, target));
     });
@@ -415,7 +466,7 @@ describe('Modal', () => {
   });
 
   describe('dispatchEvent()', () => {
-    it('Ignores non elment targets.', () => {
+    it('Ignores non element targets.', () => {
       [null, undefined, 1, true, 'str', {}]
         .map(target => modal.dispatchEvent('test:event', () => {}, target));
     });
@@ -430,12 +481,17 @@ describe('Modal', () => {
       assert.strictEqual(success, true);
     });
 
+    it("Doesn't fail when there aren't available targets.", () => {
+      modal = new Modal({ template: { html: '' } });
+      modal.dispatchEvent('test:event');
+    });
+
     it('Optional element parameter. Defaults to overlay.', () => {
       let success = false;
       document.body.children[0].addEventListener('modal:test:event', () => {
         success = true;
       });
-      modal.dispatchEvent('test:event', {});
+      modal.dispatchEvent('test:event');
       assert.strictEqual(success, true);
     });
 

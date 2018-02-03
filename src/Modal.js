@@ -272,7 +272,7 @@ export default class {
    * @param {object} detail Event detail data.
    * @param {Element} element Target element.
    */
-  dispatchEvent(name, detail, element = this.elements[0]) {
+  dispatchEvent(name, detail, element) {
     let nameWithNamespace = `${this.config.eventsNamespace}:${name}`;
     detail = Object.assign({
       instance: this,
@@ -286,11 +286,13 @@ export default class {
     }
 
     // Determine target elements.
-    let targetElements = element ?
-      [element] :
-      this.listeners.filter(l => l.type === nameWithNamespace).map(l => l.element);
+    let targetElements = [
+      [element],
+      this.listeners.filter(l => l.type === nameWithNamespace).map(l => l.element),
+      [this.elements[0]]
+    ].filter(coll => coll.filter(item => Dom.isElement(item)).length)[0];
 
-    if (targetElements.length) {
+    if (targetElements && targetElements.length) {
       // Dispatch custom event ignoring repeated targets.
       (new Set(targetElements)).forEach((target) => {
         Dom.event.dispatch(target, nameWithNamespace, detail);

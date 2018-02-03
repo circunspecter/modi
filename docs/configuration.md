@@ -34,7 +34,11 @@ Element where the modal will be inserted. Default: <code>document.body</code>.
 
 ### eventsNamespace
 
-Namespace to be applied when dispatching events. Default: <code>modal</code>.
+Namespace to be applied when dispatching events. Default: <code>modal</code>. Listeners must be prefixed accordingly.
+
+```js
+myModal.addListener('modal:show', (e) => {});
+```
 
 ### content
 
